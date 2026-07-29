@@ -1,0 +1,29 @@
+rejestr-io-mcp — instalacja dla macOS
+======================================
+
+1. Rozpakuj to archiwum ZIP w całości (nie wyciągaj tylko jednego pliku) —
+   plik binarny i skrypt instalacyjny muszą być w tym samym folderze.
+
+2. Kliknij dwukrotnie plik "Zainstaluj.command". Otworzy się okno Terminala.
+
+3. Jeśli macOS pokaże komunikat, że nie można otworzyć pliku, bo pochodzi
+   od niezidentyfikowanego dewelopera:
+   - Kliknij prawym przyciskiem (lub Control+klik) na "Zainstaluj.command"
+   - Wybierz "Otwórz" (Open) z menu
+   - Potwierdź w oknie dialogowym, klikając "Otwórz"
+   Ten komunikat pojawia się, ponieważ plik nie jest podpisany certyfikatem
+   dewelopera Apple — to nie jest wirus, to standardowe zabezpieczenie
+   Gatekeeper dla niepodpisanych programów.
+
+4. Podaj swój klucz API rejestr.io, gdy zostaniesz o niego poproszony/a w
+   Terminalu. Jeśli nie masz jeszcze klucza, załóż konto na
+   https://rejestr.io i wygeneruj go w panelu konta.
+
+5. Zamknij okno Terminala, a następnie uruchom ponownie Claude Desktop
+   i/lub aplikację ChatGPT, aby zmiany zaczęły działać.
+
+6. Sprawdź, czy działa: w Claude Desktop lub w ChatGPT (wpisując /mcp w
+   oknie rozmowy) powinieneś/aś zobaczyć serwer "rejestr-io" na liście
+   dostępnych narzędzi MCP.
+
+W razie problemów sprawdź plik README.md w repozytorium projektu.

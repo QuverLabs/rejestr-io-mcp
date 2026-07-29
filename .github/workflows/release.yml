@@ -1,0 +1,112 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform: windows
+          - os: macos-latest
+            platform: macos
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9.0.0
+
+      - name: Install dependencies
+        run: uv sync --extra dev
+
+      - name: Build binary
+        run: >-
+          uv run pyinstaller --onefile --name rejestr-io-mcp
+          --copy-metadata fastmcp
+          packaging/pyinstaller/entrypoint.py
+          --distpath dist --workpath build/pyinstaller --specpath build/pyinstaller
+
+      - name: Smoke test binary (Windows)
+        if: matrix.platform == 'windows'
+        run: uv run python packaging/pyinstaller/smoke_test.py dist/rejestr-io-mcp.exe
+
+      - name: Smoke test binary (macOS)
+        if: matrix.platform == 'macos'
+        run: uv run python3 packaging/pyinstaller/smoke_test.py dist/rejestr-io-mcp
+
+      - name: Test macOS config-merge helpers
+        if: matrix.platform == 'macos'
+        run: |
+          chmod +x packaging/installers/macos/test_lib.sh packaging/installers/macos/test_merge_claude_config.sh
+          ./packaging/installers/macos/test_lib.sh
+          ./packaging/installers/macos/test_merge_claude_config.sh
+
+      - name: Test Windows config-merge helpers
+        if: matrix.platform == 'windows'
+        shell: powershell
+        run: packaging/installers/windows/Test-Lib.ps1
+
+      - name: Assemble release archive (Windows)
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          $stagingDir = "staging/rejestr-io-mcp-windows"
+          New-Item -ItemType Directory -Path $stagingDir -Force | Out-Null
+          Copy-Item dist/rejestr-io-mcp.exe $stagingDir/
+          Copy-Item packaging/installers/windows/Zainstaluj.bat $stagingDir/
+          Copy-Item packaging/installers/windows/Zainstaluj.ps1 $stagingDir/
+          Copy-Item packaging/installers/windows/Lib.ps1 $stagingDir/
+          Copy-Item packaging/installers/windows/INSTRUKCJA.txt $stagingDir/
+          Compress-Archive -Path "$stagingDir/*" -DestinationPath "rejestr-io-mcp-windows.zip"
+
+      - name: Assemble release archive (macOS)
+        if: matrix.platform == 'macos'
+        run: |
+          staging="staging/rejestr-io-mcp-macos"
+          mkdir -p "$staging"
+          cp dist/rejestr-io-mcp "$staging/"
+          cp packaging/installers/macos/Zainstaluj.command "$staging/"
+          cp packaging/installers/macos/lib.sh "$staging/"
+          cp packaging/installers/macos/merge_claude_config.js "$staging/"
+          cp packaging/installers/macos/INSTRUKCJA.txt "$staging/"
+          chmod +x "$staging/Zainstaluj.command"
+          (cd staging/rejestr-io-mcp-macos && zip -r ../../rejestr-io-mcp-macos.zip .)
+
+      - name: Upload artifact (Windows)
+        if: matrix.platform == 'windows'
+        uses: actions/upload-artifact@v7
+        with:
+          name: rejestr-io-mcp-windows
+          path: rejestr-io-mcp-windows.zip
+
+      - name: Upload artifact (macOS)
+        if: matrix.platform == 'macos'
+        uses: actions/upload-artifact@v7
+        with:
+          name: rejestr-io-mcp-macos
+          path: rejestr-io-mcp-macos.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            artifacts/rejestr-io-mcp-windows/rejestr-io-mcp-windows.zip
+            artifacts/rejestr-io-mcp-macos/rejestr-io-mcp-macos.zip

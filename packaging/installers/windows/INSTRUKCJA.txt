@@ -1,0 +1,28 @@
+rejestr-io-mcp — instalacja dla Windows
+========================================
+
+1. Rozpakuj to archiwum ZIP w całości (nie wyciągaj tylko jednego pliku) —
+   plik binarny i skrypt instalacyjny muszą być w tym samym folderze.
+
+2. Kliknij dwukrotnie plik "Zainstaluj.bat".
+
+3. Jeśli Windows pokaże okno "Windows chronił Twój komputer"
+   (Windows SmartScreen):
+   - Kliknij "Więcej informacji" (More info)
+   - Kliknij "Uruchom mimo to" (Run anyway)
+   Ten komunikat pojawia się, ponieważ plik nie jest podpisany certyfikatem
+   wydawcy — to nie jest wirus, to standardowe ostrzeżenie dla niepodpisanych
+   programów.
+
+4. Podaj swój klucz API rejestr.io, gdy zostaniesz o niego poproszony/a.
+   Jeśli nie masz jeszcze klucza, załóż konto na https://rejestr.io i
+   wygeneruj go w panelu konta.
+
+5. Zamknij okno instalatora, a następnie uruchom ponownie Claude Desktop
+   i/lub aplikację ChatGPT, aby zmiany zaczęły działać.
+
+6. Sprawdź, czy działa: w Claude Desktop lub w ChatGPT (wpisując /mcp w
+   oknie rozmowy) powinieneś/aś zobaczyć serwer "rejestr-io" na liście
+   dostępnych narzędzi MCP.
+
+W razie problemów sprawdź plik README.md w repozytorium projektu.
