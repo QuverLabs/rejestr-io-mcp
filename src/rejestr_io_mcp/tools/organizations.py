@@ -15,7 +15,7 @@ from ..mappings import (
     SEARCH_ORGANIZATIONS_PARAM_MAP,
     SIZE_MAP,
 )
-from ._shared import build_pdf_tool_result, call_api, enum_param
+from ._shared import RETURN_BASE64_DESC, build_pdf_tool_result, build_query_params, call_api, enum_param
 
 
 def register(mcp: FastMCP, client: RejestrIoClient, download_dir: str) -> None:
@@ -115,28 +115,22 @@ def register(mcp: FastMCP, client: RejestrIoClient, download_dir: str) -> None:
         ] = None,
     ) -> dict:
         """Search organizations in the Polish National Court Register (KRS) by name, registry numbers, legal form, PKD codes, status flags, address, and pagination."""
-        raw_values: dict[str, Any] = {
-            "name": name, "nip": nip, "regon": regon, "legal_form": legal_form,
-            "first_entry_date": first_entry_date, "latest_entry_date": latest_entry_date,
-            "primary_pkd_code": primary_pkd_code, "secondary_pkd_code": secondary_pkd_code,
-            "any_pkd_code": any_pkd_code, "is_public_benefit_org": is_public_benefit_org,
-            "is_deregistered": is_deregistered, "is_in_liquidation": is_in_liquidation,
-            "is_in_bankruptcy": is_in_bankruptcy, "is_suspended": is_suspended,
-            "share_capital": share_capital,
-            "size": enum_param(size, SIZE_MAP, "size") if size is not None else None,
-            "address_type": enum_param(address_type, ADDRESS_TYPE_MAP, "address_type")
-            if address_type is not None
-            else None,
-            "country": country, "city": city, "postal_code": postal_code, "street": street,
-            "house_number": house_number, "terc_province": terc_province,
-            "terc_county": terc_county, "terc_municipality": terc_municipality,
-            "sort_by": sort_by, "page": page, "page_size": page_size,
-        }
-        params = {
-            SEARCH_ORGANIZATIONS_PARAM_MAP[key]: value
-            for key, value in raw_values.items()
-            if value is not None
-        }
+        params = build_query_params(
+            SEARCH_ORGANIZATIONS_PARAM_MAP,
+            name=name, nip=nip, regon=regon, legal_form=legal_form,
+            first_entry_date=first_entry_date, latest_entry_date=latest_entry_date,
+            primary_pkd_code=primary_pkd_code, secondary_pkd_code=secondary_pkd_code,
+            any_pkd_code=any_pkd_code, is_public_benefit_org=is_public_benefit_org,
+            is_deregistered=is_deregistered, is_in_liquidation=is_in_liquidation,
+            is_in_bankruptcy=is_in_bankruptcy, is_suspended=is_suspended,
+            share_capital=share_capital,
+            size=enum_param(size, SIZE_MAP, "size"),
+            address_type=enum_param(address_type, ADDRESS_TYPE_MAP, "address_type"),
+            country=country, city=city, postal_code=postal_code, street=street,
+            house_number=house_number, terc_province=terc_province,
+            terc_county=terc_county, terc_municipality=terc_municipality,
+            sort_by=sort_by, page=page, page_size=page_size,
+        )
         return await call_api(client.get_json("org", params=params))
 
     @mcp.tool
@@ -210,15 +204,7 @@ def register(mcp: FastMCP, client: RejestrIoClient, download_dir: str) -> None:
                 )
             ),
         ] = "current",
-        return_base64: Annotated[
-            bool,
-            Field(
-                description=(
-                    "Whether to also return the PDF content inline (as a base64-encoded file content block) "
-                    "in addition to saving it to disk and returning the file path."
-                )
-            ),
-        ] = False,
+        return_base64: Annotated[bool, Field(description=RETURN_BASE64_DESC)] = False,
     ) -> Any:
         """Download a KRS extract (odpis) PDF for an organization. 'current' requires Premium+, 'full' requires Biznes plan. Saves the PDF to the downloads directory and returns its absolute path; pass return_base64=True to also receive the file content inline."""
         polish_type = enum_param(extract_type, EXTRACT_TYPE_MAP, "extract_type")

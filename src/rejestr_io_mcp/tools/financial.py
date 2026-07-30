@@ -8,7 +8,7 @@ from pydantic import Field
 
 from ..client import RejestrIoClient
 from ..mappings import DOCUMENT_FORMAT_MAP
-from ._shared import build_pdf_tool_result, call_api, enum_param
+from ._shared import RETURN_BASE64_DESC, build_pdf_tool_result, call_api, enum_param
 
 
 def register(mcp: FastMCP, client: RejestrIoClient, download_dir: str) -> None:
@@ -34,11 +34,7 @@ def register(mcp: FastMCP, client: RejestrIoClient, download_dir: str) -> None:
         return_base64: Annotated[
             bool,
             Field(
-                description=(
-                    "Whether to also return the PDF content inline (as a base64-encoded file content block) "
-                    "in addition to saving it to disk and returning the file path. Only applies when "
-                    "format='pdf' — ignored for format='json'."
-                )
+                description=RETURN_BASE64_DESC + " Only applies when format='pdf' — ignored for format='json'."
             ),
         ] = False,
     ) -> Any:
