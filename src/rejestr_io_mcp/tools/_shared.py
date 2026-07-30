@@ -15,6 +15,11 @@ from ..mappings import translate_enum
 
 T = TypeVar("T")
 
+RETURN_BASE64_DESC = (
+    "Whether to also return the PDF content inline (as a base64-encoded file content block) "
+    "in addition to saving it to disk and returning the file path."
+)
+
 
 async def call_api(coro: Awaitable[T]) -> T:
     """Await a client call, translating RejestrIoError into a ToolError."""
@@ -24,11 +29,18 @@ async def call_api(coro: Awaitable[T]) -> T:
         raise ToolError(str(exc)) from exc
 
 
-def enum_param(value: str, mapping: dict[str, str], field_name: str) -> str:
+def enum_param(value: str | None, mapping: dict[str, str], field_name: str) -> str | None:
+    if value is None:
+        return None
     try:
         return translate_enum(value, mapping, field_name)
     except ValueError as exc:
         raise ToolError(str(exc)) from exc
+
+
+def build_query_params(param_map: dict[str, str], **values: Any) -> dict[str, Any]:
+    """Translate keyword names to API param names via param_map, dropping unset (None) values."""
+    return {param_map[key]: value for key, value in values.items() if value is not None}
 
 
 async def save_pdf(download_dir: str, document_type: str, org_id: str, content: bytes) -> str:
