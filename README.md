@@ -8,7 +8,7 @@ Jeśli nie chcesz instalować Pythona ani `uv`, pobierz gotową paczkę dla swoj
 systemu z zakładki [Releases](../../releases) tego repozytorium:
 
 1. Pobierz `rejestr-io-mcp-windows.zip` (Windows) lub `rejestr-io-mcp-macos.zip`
-   (macOS, procesory Apple Silicon/M1-M4).
+   (macOS, procesory Apple Silicon).
 2. Rozpakuj całe archiwum ZIP do jednego folderu.
 3. Uruchom instalator: `Zainstaluj.bat` (Windows) lub `Zainstaluj.command`
    (macOS) — dwuklik.
